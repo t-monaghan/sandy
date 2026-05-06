@@ -6,54 +6,56 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-        packages = {
-          sandy = pkgs.stdenv.mkDerivation {
-            pname = "sandy";
-            version = "0.5.0";
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+  }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      packages = {
+        sandy = pkgs.stdenv.mkDerivation {
+          pname = "sandy";
+          version = "0.5.0";
 
-            src = ./.;
+          src = ./.;
 
-            nativeBuildInputs = with pkgs; [
-              bun
-              nodejs
-            ];
+          nativeBuildInputs = with pkgs; [
+            bun
+            nodejs
+          ];
 
-            buildPhase = ''
-              runHook preBuild
+          buildPhase = ''
+            runHook preBuild
 
-              export HOME=$TMPDIR
+            export HOME=$TMPDIR
 
-              bun install --frozen-lockfile
-              bun scripts/pack-embedded.ts
-              bun build --compile --target=bun src/main.ts --outfile dist/sandy
+            bun install --frozen-lockfile
+            bun scripts/pack-embedded.ts
+            bun build --compile --target=bun src/main.ts --outfile dist/sandy
 
-              runHook postBuild
-            '';
+            runHook postBuild
+          '';
 
-            installPhase = ''
-              runHook preInstall
+          installPhase = ''
+            runHook preInstall
 
-              mkdir -p $out/bin
-              cp dist/sandy $out/bin/sandy
+            mkdir -p $out/bin
+            cp dist/sandy $out/bin/sandy
 
-              runHook postInstall
-            '';
+            runHook postInstall
+          '';
 
-            meta = {
-              description = "Sandboxed TypeScript runtime for AI coding agents to query AWS";
-              homepage = "https://github.com/jamestelfer/sandy";
-              license = pkgs.lib.licenses.mit;
-              mainProgram = "sandy";
-            };
+          meta = {
+            description = "Sandboxed TypeScript runtime for AI coding agents to query AWS";
+            homepage = "https://github.com/jamestelfer/sandy";
+            license = pkgs.lib.licenses.asl20;
+            mainProgram = "sandy";
           };
-
-          default = self.packages.${system}.sandy;
         };
-      });
+
+        default = self.packages.${system}.sandy;
+      };
+    });
 }
