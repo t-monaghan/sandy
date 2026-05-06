@@ -87,6 +87,17 @@ npm install -g @jamestelfer/sandy
 </details>
 
 <details>
+<summary><strong>Nix</strong></summary>
+
+Install directly from the flake into your profile:
+
+```sh
+nix profile install github:jamestelfer/sandy
+```
+
+</details>
+
+<details>
 <summary><strong>Manual download</strong></summary>
 
 Pre-built binaries for Linux and macOS (amd64/arm64) are on the [releases page](https://github.com/jamestelfer/sandy/releases). Download the archive for your OS and architecture, extract, and place the binary on your `PATH`.
