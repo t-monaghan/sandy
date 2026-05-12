@@ -4,15 +4,18 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    imds-broker.url = "github:jamestelfer/imds-broker";
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    imds-broker,
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
+      imds-broker-pkg = imds-broker.packages.${system}.default;
     in {
       packages = {
         sandy = pkgs.stdenv.mkDerivation {
@@ -24,6 +27,7 @@
           nativeBuildInputs = with pkgs; [
             bun
             nodejs
+            makeWrapper
           ];
 
           buildPhase = ''
@@ -43,6 +47,9 @@
 
             mkdir -p $out/bin
             cp dist/sandy $out/bin/sandy
+
+            wrapProgram $out/bin/sandy \
+              --suffix PATH : ${pkgs.lib.makeBinPath [imds-broker-pkg]}
 
             runHook postInstall
           '';
